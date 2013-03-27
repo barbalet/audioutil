@@ -86,6 +86,9 @@ int main(int argc, n_string argv[])
     n_uint   power1;
     n_uint   power2;
     
+    n_audio   max1;
+    n_audio   max2;
+    
     n_audio  *writeout = buffer_silence;
     
     printf("\n *** Audio Utility %s %s ***\n", SHORT_VERSION_NAME, FULL_DATE);
@@ -133,7 +136,9 @@ int main(int argc, n_string argv[])
     initial_offset = length_master & (AUDIO_FFT_MAX_BUFFER-1);
     loop_count = length_master >> AUDIO_FFT_MAX_BITS;
     
-    io_file_aiff_header(filew, (loop_count+1) << AUDIO_FFT_MAX_BITS);
+    io_file_aiff_header(filew, (loop_count+2) << AUDIO_FFT_MAX_BITS);
+    
+    loop_count = loop_count / 2;
     
     audio_clear_output(buffer_master, AUDIO_FFT_MAX_BUFFER);
     audio_clear_output(buffer_second, AUDIO_FFT_MAX_BUFFER);
@@ -146,10 +151,13 @@ int main(int argc, n_string argv[])
         
         power1 = audio_power(buffer_master, AUDIO_FFT_MAX_BUFFER);
         power2 = audio_power(buffer_second, AUDIO_FFT_MAX_BUFFER);
-        /*
-        printf("Audio power 1 : %lu\n", power1);
-        printf("Audio power 2 : %lu\n", power2);
-        */
+        
+        max1 = audio_max(buffer_master, AUDIO_FFT_MAX_BUFFER);
+        max2 = audio_max(buffer_second, AUDIO_FFT_MAX_BUFFER);
+        
+        printf("Audio power 1 : %f\n", max1);
+        printf("Audio power 2 : %f\n", max2);
+        
         power1 = (power1 > 50000000);
         power2 = (power2 > 50000000);
         
@@ -175,7 +183,7 @@ int main(int argc, n_string argv[])
         
         if (prev_space < 2)
         {
-            fwrite(writeout, AUDIO_FFT_MAX_BUFFER, sizeof(n_audio), filew);
+            fwrite(writeout, sizeof(n_audio), AUDIO_FFT_MAX_BUFFER, filew);
         }
     }
     
@@ -186,10 +194,13 @@ int main(int argc, n_string argv[])
         
         power1 = audio_power(buffer_master, AUDIO_FFT_MAX_BUFFER);
         power2 = audio_power(buffer_second, AUDIO_FFT_MAX_BUFFER);
-        /*
-         printf("Audio power 1 : %lu\n", power1);
-         printf("Audio power 2 : %lu\n", power2);
-         */
+        
+        max1 = audio_max(buffer_master, AUDIO_FFT_MAX_BUFFER);
+        max2 = audio_max(buffer_second, AUDIO_FFT_MAX_BUFFER);
+        
+        printf("Audio power 1 : %f\n", max1);
+        printf("Audio power 2 : %f\n", max2);
+         
         power1 = (power1 > 50000000);
         power2 = (power2 > 50000000);
         
